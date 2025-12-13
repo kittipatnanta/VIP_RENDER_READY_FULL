@@ -19,9 +19,63 @@ def conn():
     return sqlite3.connect("data.db")
 
 @app.route("/")
+@app.route("/")
 def home():
-    return redirect("/dashboard")
+    return """
+    <html>
+    <head>
+        <title>VIP System</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background: #0f0f0f;
+                color: #ffffff;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+            .box {
+                background: #1a1a1a;
+                padding: 40px;
+                border-radius: 10px;
+                text-align: center;
+                width: 320px;
+            }
+            h1 {
+                margin-bottom: 10px;
+            }
+            p {
+                color: #bbbbbb;
+                margin-bottom: 30px;
+            }
+            a {
+                display: block;
+                text-decoration: none;
+                margin: 10px 0;
+                padding: 12px;
+                border-radius: 6px;
+                background: #ff2d2d;
+                color: #fff;
+                font-weight: bold;
+            }
+            a.secondary {
+                background: #444;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="box">
+            <h1>VIP Content System</h1>
+            <p>สมัคร VIP เพื่อเข้าถึงคอนเทนต์พิเศษ</p>
 
+            <a href="/login">เข้าสู่ระบบแอดมิน</a>
+            <a href="/go/1" class="secondary">สมัคร VIP</a>
+            <a href="https://t.me/USERNAME" class="secondary">ติดต่อ Telegram</a>
+        </div>
+    </body>
+    </html>
+    """
 @app.route("/login", methods=["GET","POST"])
 def login():
     if request.method == "POST":
