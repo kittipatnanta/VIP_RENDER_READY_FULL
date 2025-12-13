@@ -71,7 +71,7 @@ def home():
 
             <a href="/login">เข้าสู่ระบบแอดมิน</a>
             <a href="/go/1" class="secondary">สมัคร VIP</a>
-            <a href="https://t.me/USERNAME" class="secondary">ติดต่อ Telegram</a>
+            <a href="https://t.me/BRSmokeHub71626" class="secondary">ติดต่อ Telegram</a>
         </div>
     </body>
     </html>
