@@ -19,7 +19,6 @@ def conn():
     return sqlite3.connect("data.db")
 
 @app.route("/")
-@app.route("/")
 def home():
     return """
     <html>
