@@ -2,7 +2,7 @@ import os
 import requests
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
-    ApplicationBuilder,
+    Application,
     CommandHandler,
     CallbackQueryHandler,
     ContextTypes,
@@ -46,7 +46,7 @@ async def confirm(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.message.reply_text("❌ ระบบขัดข้อง กรุณาลองใหม่")
 
 def main():
-    app = ApplicationBuilder().token(BOT_TOKEN).build()
+    app = Application.builder().token(BOT_TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(buy_vip, pattern="buy_vip"))
