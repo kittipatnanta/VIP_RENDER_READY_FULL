@@ -2,12 +2,18 @@ from flask import Flask, redirect, request
 from flask_login import LoginManager, UserMixin, login_user, login_required
 import sqlite3, datetime
 
+# =====================
+# App setup
+# =====================
 app = Flask(__name__)
 app.secret_key = "CHANGE_ME"
 
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 
+# =====================
+# Auth
+# =====================
 class Admin(UserMixin):
     id = 1
 
@@ -15,8 +21,43 @@ class Admin(UserMixin):
 def load_user(user_id):
     return Admin()
 
+# =====================
+# Database
+# =====================
 def conn():
     return sqlite3.connect("data.db")
+
+def init_db():
+    c = conn()
+    cur = c.cursor()
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS clicks (
+            id INTEGER PRIMARY KEY,
+            post_id INTEGER,
+            clicked_at TEXT
+        )
+    """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS signups (
+            id INTEGER PRIMARY KEY,
+            post_id INTEGER,
+            user_id INTEGER,
+            amount INTEGER,
+            signed_at TEXT
+        )
+    """)
+
+    c.commit()
+    c.close()
+
+# init database on startup
+init_db()
+
+# =====================
+# Routes
+# =====================
 
 @app.route("/")
 def home():
@@ -41,13 +82,8 @@ def home():
                 text-align: center;
                 width: 320px;
             }
-            h1 {
-                margin-bottom: 10px;
-            }
-            p {
-                color: #bbbbbb;
-                margin-bottom: 30px;
-            }
+            h1 { margin-bottom: 10px; }
+            p { color: #bbbbbb; margin-bottom: 30px; }
             a {
                 display: block;
                 text-decoration: none;
@@ -58,9 +94,7 @@ def home():
                 color: #fff;
                 font-weight: bold;
             }
-            a.secondary {
-                background: #444;
-            }
+            a.secondary { background: #444; }
         </style>
     </head>
     <body>
@@ -75,7 +109,8 @@ def home():
     </body>
     </html>
     """
-@app.route("/login", methods=["GET","POST"])
+
+@app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         if request.form.get("password") == "admin123":
@@ -94,17 +129,16 @@ def dashboard():
     c = conn()
     cur = c.cursor()
 
-    cur.execute("CREATE TABLE IF NOT EXISTS clicks (id INTEGER PRIMARY KEY, post_id INTEGER, clicked_at TEXT)")
-    cur.execute("CREATE TABLE IF NOT EXISTS signups (id INTEGER PRIMARY KEY, post_id INTEGER, user_id INTEGER, amount INTEGER, signed_at TEXT)")
-
     cur.execute("SELECT COUNT(*) FROM clicks")
     clicks = cur.fetchone()[0]
+
     cur.execute("SELECT COUNT(*) FROM signups")
     signups = cur.fetchone()[0]
+
     cur.execute("SELECT COALESCE(SUM(amount),0) FROM signups")
     revenue = cur.fetchone()[0]
 
-    conversion = round((signups/clicks)*100,2) if clicks else 0
+    conversion = round((signups / clicks) * 100, 2) if clicks else 0
     c.close()
 
     return f"""
@@ -119,27 +153,41 @@ def dashboard():
 def go(pid):
     c = conn()
     cur = c.cursor()
+
     cur.execute(
-        "INSERT INTO clicks (post_id, clicked_at) VALUES (?,?)",
+        "INSERT INTO clicks (post_id, clicked_at) VALUES (?, ?)",
         (pid, datetime.datetime.utcnow().isoformat())
     )
+
     c.commit()
     c.close()
-    return redirect("https://example.com")
+
+    # TODO: เปลี่ยนเป็นลิงก์จริงของคุณ
+    return redirect("https://t.me/BRSmokeHub71626")
 
 @app.route("/payment/webhook", methods=["POST"])
 def payment():
     data = request.json or {}
+
     c = conn()
     cur = c.cursor()
+
     cur.execute(
-        "INSERT INTO signups (post_id,user_id,amount,signed_at) VALUES (?,?,?,?)",
-        (data.get("post_id"), data.get("user_id"), data.get("amount"),
-         datetime.datetime.utcnow().isoformat())
+        "INSERT INTO signups (post_id, user_id, amount, signed_at) VALUES (?, ?, ?, ?)",
+        (
+            data.get("post_id"),
+            data.get("user_id"),
+            data.get("amount"),
+            datetime.datetime.utcnow().isoformat()
+        )
     )
+
     c.commit()
     c.close()
     return {"status": "ok"}
 
+# =====================
+# Run
+# =====================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
