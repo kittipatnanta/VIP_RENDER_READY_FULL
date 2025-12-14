@@ -42,7 +42,7 @@ async def confirm(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         requests.post(WEBHOOK_URL, json=payload, timeout=10)
         await query.message.reply_text("✅ รับข้อมูลเรียบร้อย รอแอดมินตรวจสอบ")
-    except Exception as e:
+    except Exception:
         await query.message.reply_text("❌ ระบบขัดข้อง กรุณาลองใหม่")
 
 def main():
