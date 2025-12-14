@@ -3,3 +3,5 @@ flask
 flask-login
 python-dotenv
 gunicorn
+python-telegram-bot==20.8
+requests
