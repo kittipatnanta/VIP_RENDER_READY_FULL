@@ -52,6 +52,8 @@ def main():
     app.add_handler(CallbackQueryHandler(buy_vip, pattern="buy_vip"))
     app.add_handler(CallbackQueryHandler(confirm, pattern="confirm"))
 
+    app.add_error_handler(error_handler)
+
     app.run_polling()
 
 if __name__ == "__main__":
