@@ -23,13 +23,9 @@ async def buy_vip(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
+    keyboard = [[InlineKeyboardButton("ยืนยันการชำระเงิน", callback_data="confirm")]]
     await query.message.reply_text(
-        "โอนเงิน 199 บาท ผ่าน PromptPay\nเมื่อโอนแล้ว กดปุ่มด้านล่างเพื่อแจ้งโอน"
-    )
-
-    keyboard = [[InlineKeyboardButton("แจ้งโอนแล้ว", callback_data="confirm")]]
-    await query.message.reply_text(
-        "กดปุ่มเพื่อยืนยัน",
+        "โอนเงิน 199 บาท ผ่าน PromptPay แล้วกดยืนยัน",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
@@ -43,16 +39,13 @@ async def confirm(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "amount": PROMPTPAY_AMOUNT
     }
 
-    requests.post(WEBHOOK_URL, json=payload, timeout=10)
+    try:
+        requests.post(WEBHOOK_URL, json=payload, timeout=10)
+        await query.message.reply_text("✅ รับข้อมูลเรียบร้อย รอแอดมินตรวจสอบ")
+    except Exception as e:
+        await query.message.reply_text("❌ ระบบขัดข้อง กรุณาลองใหม่")
 
-    await query.message.reply_text(
-        "รับแจ้งโอนแล้ว ✅\nแอดมินจะตรวจสอบและเชิญเข้ากลุ่ม VIP"
-    )
-
-if __name__ == "__main__":
-    if not BOT_TOKEN:
-        raise RuntimeError("BOT_TOKEN is not set")
-
+def main():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
@@ -61,3 +54,5 @@ if __name__ == "__main__":
 
     app.run_polling()
 
+if __name__ == "__main__":
+    main()
